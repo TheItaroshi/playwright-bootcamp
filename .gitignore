@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.pyc
+.idea/
+node_modules/
+test-results/
+playwright-report/
+.pytest_cache/
+
+# Local settings, credentials, and browser state
+.DS_Store
+.env
+.env.*
+!.env.example
+.auth/
+playwright/.auth/
+*storage_state*.json
+
+# Python tooling artifacts
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/

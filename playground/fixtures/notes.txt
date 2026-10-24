@@ -1,0 +1,2 @@
+Hello, Playwright!
+This is a deterministic upload fixture.

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Python learning path · Playwright Lab</title><link rel="stylesheet" href="style.css"></head>
+<body><main class="guide-content">
+<a href="index.html#controls">← Back to the playground</a>
+<div class="eyebrow" style="margin-top:30px">YOUR PYTHON LEARNING PATH</div>
+<h1>From first assertion<br>to a reliable test suite.</h1>
+<p>The playground covers common browser interactions. This path adds the test design, isolation, debugging, and execution skills around them. You write every test; the tasks provide goals and API hints, not solutions.</p>
+<section><h2>1. Prepare your test environment</h2>
+<p>Use Python’s synchronous Playwright API with pytest to begin. The website itself needs only Python; your automation needs the packages and browser binaries below. Run these commands from the project root. They use the existing virtual environment.</p>
+<pre><code>.venv/bin/python -m pip install pytest-playwright
+.venv/bin/python -m playwright install chromium
+python3 playground/server.py</code></pre>
+<p>Keep the server running in one terminal. Create your own <code>tests/test_controls.py</code>. In another terminal, run:</p>
+<pre><code>.venv/bin/python -m pytest tests/test_controls.py --browser chromium --headed</code></pre>
+<p>Use <code>Page</code> and <code>expect</code> from <code>playwright.sync_api</code>. The pytest plugin supplies a <code>page</code> fixture to test functions. Name your files <code>test_*.py</code> and functions <code>test_*</code>. Start with <code>http://127.0.0.1:8000/#controls</code>.</p>
+<p>Use sync consistently; do not mix async API examples into these tests. Once you have one passing test, record your tested dependency versions for repeatable setup. <a href="https://playwright.dev/python/docs/test-runners">Python pytest plugin reference</a>.</p></section>
+<section><h2>2. Use the same practice loop</h2><ol>
+<li><strong>Explore manually.</strong> Open one exercise and perform its mission. Identify the starting state, action, and observable result.</li>
+<li><strong>Write one happy-path test.</strong> Arrange a fresh page, act through the UI, then assert the result. Keep each test focused on one behavior.</li>
+<li><strong>Use the feature hints.</strong> Each exercise now has a “Python features to use” panel and detailed assignments below the playground. Open completion criteria to see the expected outcome.</li>
+<li><strong>Add negative and boundary cases.</strong> Try invalid input, cancellation, an empty response, or a failure. Assert what must remain unchanged as well as the error.</li>
+<li><strong>Prove isolation.</strong> Run the test alone and with its neighbors. Use fresh fixture-provided contexts; a previous test must not prepare this one.</li>
+<li><strong>Debug before refactoring.</strong> Deliberately break one assertion, read the failure and trace, then restore it. Extract helpers only once you have repeated behavior worth sharing.</li>
+</ol><p>Prefer user-facing roles and labels, scope repeated elements, and use retrying <code>expect</code> assertions. Avoid fixed sleeps and long CSS/XPath chains. Do not turn every click into a helper or create page objects before you understand the flow. <a href="https://playwright.dev/python/docs/locators">Locators</a> · <a href="https://playwright.dev/python/docs/test-assertions">Assertions</a>.</p></section>
+<section><h2>3. Follow this order</h2><div class="table-wrap"><table><thead><tr><th>Stage</th><th>Exercises</th><th>Ready to move on when…</th></tr></thead><tbody>
+<tr><td>Foundations</td><td><a href="index.html#controls">Controls</a> → <a href="index.html#locators">Locators</a> → <a href="index.html#timing">Waiting</a></td><td>You can locate unambiguously, assert state, and handle delays without sleeps.</td></tr>
+<tr><td>Browser interactions</td><td><a href="index.html#tables">Tables</a> → <a href="index.html#dialogs">Dialogs</a> → <a href="index.html#files">Files</a></td><td>You handle events before triggering them and assert actual data.</td></tr>
+<tr><td>Boundaries</td><td><a href="index.html#boundaries">Frames / shadow DOM</a> → <a href="index.html#board">Drag / keyboard</a></td><td>You can work inside different document boundaries and verify the destination state.</td></tr>
+<tr><td>State and HTTP</td><td><a href="index.html#network">Network</a> → <a href="index.html#storage">Storage</a></td><td>You can mock failures, test endpoints directly, and explain context isolation.</td></tr>
+<tr><td>Capstone</td><td><a href="index.html#checkout">Checkout</a></td><td>You cover pricing, validation, requests, and recovery in independent tests.</td></tr>
+</tbody></table></div><p style="margin-top:18px">Start with one assignment per session. A test is done when it checks its completion criteria, passes independently, and fails for a meaningful reason if you deliberately change the expected result.</p></section>
+<section><h2>4. Build the wider testing skills</h2><p>These assignments use the existing website. They do not need more buttons or pages.</p>
+<ol>
+<li><strong>Fixtures and parameterization.</strong> Once two tests duplicate setup, create a fixture in your own <code>conftest.py</code> that opens an exercise. Parameterize the four checkout pricing cases. Done: cases have descriptive IDs, cleanup happens even on failure, and each test also runs alone. <a href="https://playwright.dev/python/docs/test-runners">pytest integration</a>.</li>
+<li><strong>Debugging and traces.</strong> Intentionally expect the wrong report total. Run with the command below, open the resulting trace locally, and locate the failing assertion, action timeline, DOM snapshot, and network activity. Restore the correct expectation afterward. <a href="https://playwright.dev/python/docs/trace-viewer">Trace Viewer</a>.
+<pre><code>.venv/bin/python -m pytest tests --tracing retain-on-failure --screenshot only-on-failure
+.venv/bin/python -m playwright show-trace path/to/trace.zip</code></pre>The trace path is an example: use the actual file emitted under <code>test-results/</code>.</li>
+<li><strong>Cross-browser execution.</strong> Install Firefox and WebKit, then run your core tests across all three engines. Done: controls, dialogs, files, and checkout pass without relying on browser-specific native validation text.
+<pre><code>.venv/bin/python -m playwright install firefox webkit
+.venv/bin/python -m pytest tests --browser chromium --browser firefox --browser webkit</code></pre></li>
+<li><strong>Viewport and device emulation.</strong> Use the <code>browser_context_args</code> fixture to test a desktop viewport and a narrow mobile viewport in separate cases. Navigate to checkout and complete it at both sizes. Done: controls remain reachable and important content is not clipped. Device emulation is not a physical device test. <a href="https://playwright.dev/python/docs/emulation">Emulation</a>.</li>
+<li><strong>API-only coverage.</strong> With an APIRequestContext, test the health endpoint, filtered products, 503, a valid order, stock overflow, and an invalid coupon. Done: assert status and response body. The server deliberately does not persist orders, so there is no order-history query to verify. <a href="https://playwright.dev/python/docs/api-testing">API testing</a>.</li>
+<li><strong>Saved state.</strong> Complete S3 in Storage. Explain why the Ocean preference restores but login does not. This teaches a limitation; it is not a real cookie-based authentication exercise. <a href="https://playwright.dev/python/docs/auth">Authentication and session storage</a>.</li>
+<li><strong>Clock control.</strong> Complete W3 after solving ordinary waiting. Done: check both timer boundaries deterministically. The browser clock does not shorten real HTTP delays implemented in Python. <a href="https://playwright.dev/python/docs/clock">Clock</a>.</li>
+<li><strong>Parallel execution.</strong> Install <code>pytest-xdist</code>, then run your suite using <code>-n 2</code>. Use <code>tmp_path</code> for downloads/state files and separate browser contexts. Done: cases pass without shared file collisions or dependence on test order. <a href="https://playwright.dev/python/docs/test-runners">Parallel pytest execution</a>.</li>
+<li><strong>Screenshots and accessibility.</strong> Capture a screenshot of a stable exercise at a fixed viewport. Keyboard-tab through the controls and assert focus, labels, and switch state. Python’s screenshot API captures an image; automatic baseline comparison needs a separate comparison tool/plugin. Role assertions are useful but are not a complete accessibility audit. <a href="https://playwright.dev/python/docs/screenshots">Screenshots</a>.</li>
+<li><strong>Continuous integration.</strong> After local tests are stable, write your own CI workflow: install pinned dependencies and browsers/system dependencies, start the Python server, wait for <code>/api/health</code> to succeed, run tests, and retain failure artifacts. Done: it passes from a clean checkout without a manually running server. <a href="https://playwright.dev/python/docs/ci">Python CI guide</a>.</li>
+</ol></section>
+<section><h2>What this playground does—and does not—cover</h2><p><strong>Strong coverage:</strong> locators, actions, web-first assertions, waiting, common browser events, tables, files, frames, open shadow roots, keyboard input, network interception, and multi-step workflows.</p><p><strong>Practiced through the learning path:</strong> fixtures, isolation, API testing, storage-state behavior, clock control, traces, browser/device configuration, parallelism, and CI.</p><p><strong>Not simulated:</strong> real server authentication and authorization, persistent multi-user data, OAuth, WebSockets, service workers, permission-dependent geolocation/camera flows, or production payment systems. Those are later extensions, not prerequisites for your first reliable suite.</p><p>Python uses pytest and its ecosystem. JavaScript/TypeScript Playwright Test’s projects, UI Mode, built-in screenshot comparison assertions, and runner configuration should not be copied into Python tests.</p></section>
+<a href="index.html#controls">Start with C1: save a complete profile →</a>
+</main></body></html>
