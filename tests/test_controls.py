@@ -7,7 +7,8 @@ def test_controls_title(page: Page):
     page.goto('http://127.0.0.1:8000/index.html#controls')
     assert page.locator('#title').inner_text() == 'Basic controls'
 
-def test_controls_profile(page: Page):
+@pytest.mark.parametrize("country", ['Poland', "Germany"])
+def test_controls_profile(page: Page, country: str):
     page.goto('http://127.0.0.1:8000/index.html#controls')
     profile_locator =  page.locator('#profile')
     name_locator = profile_locator.locator('#name')
@@ -23,17 +24,16 @@ def test_controls_profile(page: Page):
     values = {
         'name': 'Ada Lovelace',
         'email': 'ada@example.com',
-        'country': 'Poland',
         'tools': ['Playwright', 'Python'],
         'date': '2026-01-15'
     }
 
-    name_locator.fill(values.get('name'))
-    email_locator.fill(values.get('email'))
-    country_locator.select_option(values.get('country'))
-    tools_locator.select_option(values.get('tools'))
+    name_locator.fill(values['name'])
+    email_locator.fill(values['email'])
+    country_locator.select_option(country)
+    tools_locator.select_option(values['tools'])
     plan_pro_locator.check()
-    date_locator.fill(values.get('date'))
+    date_locator.fill(values['date'])
     terms_locator.check()
     button_locator.click()
     result_locator = page.locator('#result')
@@ -42,8 +42,8 @@ def test_controls_profile(page: Page):
     assert terms_locator.is_checked()
     assert not plan_starter_locator.is_checked()
 
-    expect(country_locator).to_have_value(values.get('country'))
-    expect(tools_locator).to_have_values(values.get('tools'))
+    expect(country_locator).to_have_value(country)
+    expect(tools_locator).to_have_values(values['tools'])
     expect(plan_pro_locator).to_be_checked()
     expect(plan_starter_locator).not_to_be_checked()
     expect(terms_locator).to_be_checked()
@@ -56,6 +56,10 @@ def test_controls_profile(page: Page):
 def test_empty_profile(page: Page):
     page.goto('http://127.0.0.1:8000/index.html#controls')
     result_locator = page.locator('#result')
+    profile_locator =  page.locator('#profile')
+    button_locator = profile_locator.get_by_role('button', name='Save profile')
+    
+    button_locator.click()
 
     expect(result_locator).to_be_hidden()
     expect(result_locator).to_be_empty()
@@ -65,16 +69,25 @@ def test_wrong_email(page: Page):
     profile_locator =  page.locator('#profile')
     name_locator = profile_locator.locator('#name')
     email_locator = profile_locator.locator('#email')
+    country_locator = profile_locator.locator('#country')
+    plan_starter_locator = profile_locator.get_by_role('radio', name='Starter')
+    terms_locator = profile_locator.get_by_role('checkbox', name='I accept the practice terms')
     button_locator = profile_locator.get_by_role('button', name='Save profile')
     result_locator = page.locator('#result')
 
     values = {
         'name': 'Ada Lovelace',
         'email': 'wrong mail',
+        'country': 'Poland'
     }
 
-    name_locator.fill(values.get('name'))
-    email_locator.fill(values.get('email'))
+    name_locator.fill(values['name'])
+    email_locator.fill(values['email'])
+    country_locator.select_option(values['country'])
+    terms_locator.check()
+    
+    expect(plan_starter_locator).to_be_checked()
+    expect(terms_locator).to_be_checked()
 
     button_locator.click()
 
@@ -103,12 +116,12 @@ def test_not_accepted_terms(page: Page):
         'date': '2026-01-15'
     }
 
-    name_locator.fill(values.get('name'))
-    email_locator.fill(values.get('email'))
-    country_locator.select_option(values.get('country'))
-    tools_locator.select_option(values.get('tools'))
+    name_locator.fill(values['name'])
+    email_locator.fill(values['email'])
+    country_locator.select_option(values['country'])
+    tools_locator.select_option(values['tools'])
     plan_pro_locator.check()
-    date_locator.fill(values.get('date'))
+    date_locator.fill(values['date'])
     button_locator.click()
     result_locator = page.locator('#result')
 
@@ -116,8 +129,8 @@ def test_not_accepted_terms(page: Page):
     assert not terms_locator.is_checked()
     assert not plan_starter_locator.is_checked()
 
-    expect(country_locator).to_have_value(values.get('country'))
-    expect(tools_locator).to_have_values(values.get('tools'))
+    expect(country_locator).to_have_value(values['country'])
+    expect(tools_locator).to_have_values(values['tools'])
     expect(plan_pro_locator).to_be_checked()
     expect(plan_starter_locator).not_to_be_checked()
     expect(terms_locator).not_to_be_checked()
