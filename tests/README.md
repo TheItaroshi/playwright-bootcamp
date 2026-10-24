@@ -14,4 +14,9 @@ Keep reusable upload files in `playground/fixtures/`. Use pytest's `tmp_path`
 for generated downloads and saved browser state. Do not commit authentication
 state, traces, or local environment files.
 
-No test implementations are provided: the automation is your learning work.
+The automation is learning work; a worked reference is available for comparison.
+
+## Basic controls
+
+- `test_controls.py` contains practice tests.
+- `controls_pro_reference.py` is the self-describing pro example. Pytest skips it during automatic collection; run it explicitly with `pytest tests/controls_pro_reference.py`.
