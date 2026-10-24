@@ -59,3 +59,25 @@ def test_empty_profile(page: Page):
 
     expect(result_locator).to_be_hidden()
     expect(result_locator).to_be_empty()
+
+def test_wrong_email(page: Page):
+    page.goto('http://127.0.0.1:8000/index.html#controls')
+    profile_locator =  page.locator('#profile')
+    name_locator = profile_locator.locator('#name')
+    email_locator = profile_locator.locator('#email')
+    button_locator = profile_locator.get_by_role('button', name='Save profile')
+    result_locator = page.locator('#result')
+
+    values = {
+        'name': 'Ada Lovelace',
+        'email': 'wrong mail',
+    }
+
+    name_locator.fill(values.get('name'))
+    email_locator.fill(values.get('email'))
+
+    button_locator.click()
+
+    assert email_locator.evaluate('element => element.validity.typeMismatch')
+    expect(result_locator).to_be_hidden()
+    expect(result_locator).to_be_empty()
