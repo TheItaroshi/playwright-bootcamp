@@ -52,3 +52,10 @@ def test_controls_profile(page: Page):
 
     for value in flat_values:
         expect(result_locator).to_contain_text(value)
+
+def test_empty_profile(page: Page):
+    page.goto('http://127.0.0.1:8000/index.html#controls')
+    result_locator = page.locator('#result')
+
+    expect(result_locator).to_be_hidden()
+    expect(result_locator).to_be_empty()
